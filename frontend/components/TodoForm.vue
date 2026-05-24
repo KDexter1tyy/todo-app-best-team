@@ -134,7 +134,7 @@
               </div>
 
               <!-- Due date field -->
-              <div class="mb-6">
+              <div class="mb-4">
                 <label for="todo-due-date" class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-1.5">
                   Due Date
                 </label>
@@ -149,6 +149,31 @@
                 <p v-if="errors.due_date" class="mt-1.5 text-sm text-red-600 dark:text-red-400" role="alert">
                   {{ errors.due_date }}
                 </p>
+              </div>
+
+              <!-- Reminder field -->
+              <div class="mb-6">
+                <label for="todo-reminder-at" class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-1.5">
+                  Reminder
+                </label>
+                <div class="flex items-center gap-2">
+                  <input
+                    id="todo-reminder-at"
+                    v-model="form.reminder_at"
+                    type="datetime-local"
+                    class="input-field flex-1"
+                    :disabled="submitting"
+                  />
+                  <button
+                    v-if="form.reminder_at"
+                    type="button"
+                    class="text-xs text-secondary-500 hover:text-red-600 dark:hover:text-red-400 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
+                    :disabled="submitting"
+                    @click="form.reminder_at = ''"
+                  >
+                    Clear
+                  </button>
+                </div>
               </div>
 
               <!-- General error -->
@@ -226,6 +251,7 @@ const form = reactive({
   priority: 'medium' as 'low' | 'medium' | 'high',
   due_date: '',
   status: 'pending' as 'pending' | 'in-progress' | 'done',
+  reminder_at: '', // datetime-local string ("YYYY-MM-DDTHH:mm")
 })
 
 const errors = reactive({
@@ -248,6 +274,7 @@ watch(() => props.visible, (newVal) => {
       form.priority = props.todo.priority
       form.due_date = props.todo.due_date ?? ''
       form.status = props.todo.status
+      form.reminder_at = isoToLocalInput(props.todo.reminder_at)
     } else {
       // Reset to defaults for creating
       form.title = ''
@@ -255,6 +282,7 @@ watch(() => props.visible, (newVal) => {
       form.priority = 'medium'
       form.due_date = ''
       form.status = 'pending'
+      form.reminder_at = ''
     }
   }
 })
@@ -267,8 +295,25 @@ watch(() => props.todo, (newTodo) => {
     form.priority = newTodo.priority
     form.due_date = newTodo.due_date ?? ''
     form.status = newTodo.status
+    form.reminder_at = isoToLocalInput(newTodo.reminder_at)
   }
 })
+
+function isoToLocalInput(iso: string | null | undefined): string {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  // Format as YYYY-MM-DDTHH:mm in the local timezone for <input type="datetime-local">
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
+function localInputToIso(local: string): string | null {
+  if (!local) return null
+  const d = new Date(local)
+  if (Number.isNaN(d.getTime())) return null
+  return d.toISOString()
+}
 
 function clearErrors() {
   errors.title = ''
@@ -348,6 +393,11 @@ function handleSubmit() {
       data.status = form.status
     }
 
+    const newReminderAt = localInputToIso(form.reminder_at)
+    if (newReminderAt !== (todo.reminder_at ?? null)) {
+      data.reminder_at = newReminderAt
+    }
+
     emit('submit', data)
   } else {
     // For creating, send all fields
@@ -364,6 +414,11 @@ function handleSubmit() {
 
     if (form.due_date) {
       data.due_date = form.due_date
+    }
+
+    const reminderIso = localInputToIso(form.reminder_at)
+    if (reminderIso) {
+      data.reminder_at = reminderIso
     }
 
     emit('submit', data)
