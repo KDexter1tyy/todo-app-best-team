@@ -1,4 +1,4 @@
-import type { User, Todo, TodoStats, TodoCreate, TodoUpdate } from '~/types'
+import type { User, Todo, TodoStats, TodoCreate, TodoUpdate, TodoListParams } from '~/types'
 
 const BASE_URL = 'http://localhost:8000/api'
 const TIMEOUT_MS = 15000
@@ -60,8 +60,17 @@ export const authApi = {
 
 // Todos API
 export const todosApi = {
-  list(params?: { status?: string; priority?: string; sort_by?: string }) {
-    return apiFetch<Todo[]>('/todos', { params })
+  list(params?: TodoListParams) {
+    // Normalize empty-string q to undefined so it isn't sent as ?q=
+    const normalized: Record<string, string | undefined> | undefined = params
+      ? {
+          status: params.status,
+          priority: params.priority,
+          sort_by: params.sort_by,
+          q: params.q && params.q.length > 0 ? params.q : undefined,
+        }
+      : undefined
+    return apiFetch<Todo[]>('/todos', { params: normalized })
   },
 
   get(id: string) {

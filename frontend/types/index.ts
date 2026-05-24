@@ -30,3 +30,10 @@ export type TodoCreate = Pick<Todo, 'title'> &
 export type TodoUpdate = Partial<
   Pick<Todo, 'title' | 'description' | 'priority' | 'due_date' | 'status'>
 >
+
+export interface TodoListParams {
+  status?: string
+  priority?: string
+  sort_by?: string
+  q?: string
+}
