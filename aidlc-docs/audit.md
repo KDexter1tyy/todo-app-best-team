@@ -90,3 +90,11 @@ Unit 3 (frontend) is fully preserved and remains the only completed Construction
 **Context**: Backend grep for "notification|Notification" returns zero matches. All touched backend files have no diagnostics. Unit 3 frontend files verified — no diagnostics.
 
 ---
+
+## Unit 4 — Code Generation Complete
+**Timestamp**: 2026-05-24T18:25:00Z
+**User Input**: "skip functional design, straight to code generation, happy path only, no additional testing, no unit testing, proceed with code generation of Unit 4"
+**AI Response**: Skipped Functional Design / NFR Requirements / NFR Design / Infrastructure Design (per user). Generated 1 new file (ReminderBadge.vue) and modified 5 files (types/index.ts, TodoForm.vue, TodoItem.vue, dashboard.vue, useTodos.ts). Verified via `nuxt build` — client + server bundles compiled cleanly; dashboard chunk grew from ~52 kB to ~55.5 kB. No test files created. No diagnostics on any touched file.
+**Context**: Unit 4 (Reminder Form Integration) is the second-completed Construction unit. Frontend reminder UI now mounted in both the inline dashboard create flow and in the dedicated TodoForm/TodoItem components. Backend persistence still requires Unit 2.
+
+---

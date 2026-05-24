@@ -22,5 +22,9 @@
     {
         "timestamp":  "2026-05-24T18:10:00",
         "prompt":  "revert the changes made to generate unit 1 and only keep unit 3"
+    },
+    {
+        "timestamp":  "2026-05-24T18:25:00",
+        "prompt":  "skip functional design, straight to code generation, happy path only, no additional testing, no unit testing, proceed with code generation of Unit 4"
     }
 ]
