@@ -147,6 +147,14 @@
                     >
                       Due: {{ formatDate(todo.due_date) }}
                     </span>
+                    <!-- Reminder -->
+                    <span
+                      v-if="todo.reminder_at"
+                      class="text-xs text-secondary-500 dark:text-secondary-400"
+                    >
+                      Reminder: {{ formatReminder(todo.reminder_at) }}
+                    </span>
+                    <ReminderBadge :reminder-at="todo.reminder_at" :status="todo.status" />
                   </div>
                 </div>
 
@@ -265,6 +273,29 @@
                 </div>
               </div>
 
+              <!-- Reminder field -->
+              <div class="mb-4">
+                <label for="todo-reminder-at" class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-1.5">
+                  Reminder
+                </label>
+                <div class="flex items-center gap-2">
+                  <input
+                    id="todo-reminder-at"
+                    v-model="createForm.reminder_at_local"
+                    type="datetime-local"
+                    class="input-field flex-1"
+                  />
+                  <button
+                    v-if="createForm.reminder_at_local"
+                    type="button"
+                    class="text-xs text-secondary-500 hover:text-red-600 dark:hover:text-red-400 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
+                    @click="createForm.reminder_at_local = ''"
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+
               <!-- Actions -->
               <div class="flex gap-3 justify-end mt-6">
                 <button
@@ -356,11 +387,13 @@ const priorityFilter = ref<string | undefined>(undefined)
 const sortBy = ref<string | undefined>(undefined)
 const searchQuery = ref<string>('')
 
-const createForm = reactive<TodoCreate>({
+const createForm = reactive<TodoCreate & { reminder_at_local: string }>({
   title: '',
   description: undefined,
   priority: 'medium',
   due_date: undefined,
+  reminder_at: null,
+  reminder_at_local: '',
 })
 
 // Fetch data on mount
@@ -405,11 +438,16 @@ async function handleCreateTodo() {
   }
 
   creating.value = true
+  const reminderIso = createForm.reminder_at_local
+    ? new Date(createForm.reminder_at_local).toISOString()
+    : undefined
+
   const data: TodoCreate = {
     title: createForm.title.trim(),
     description: createForm.description?.trim() || undefined,
     priority: createForm.priority,
     due_date: createForm.due_date || undefined,
+    reminder_at: reminderIso ?? null,
   }
 
   const result = await createTodo(data)
@@ -430,6 +468,8 @@ function resetCreateForm() {
   createForm.description = undefined
   createForm.priority = 'medium'
   createForm.due_date = undefined
+  createForm.reminder_at = null
+  createForm.reminder_at_local = ''
 }
 
 // Toggle todo status
@@ -524,6 +564,17 @@ function formatStatus(status: string): string {
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr + 'T00:00:00')
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+function formatReminder(iso: string): string {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  return d.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  })
 }
 
 function isOverdue(todo: Todo): boolean {
