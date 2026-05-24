@@ -1,0 +1,26 @@
+[
+    {
+        "timestamp":  "2026-05-24T17:26:41",
+        "prompt":  "using AI DLC, I want to develop Unit 3"
+    },
+    {
+        "timestamp":  "2026-05-24T17:27:20",
+        "prompt":  "using AI DLC, I want to develop Unit 3"
+    },
+    {
+        "timestamp":  "2026-05-24T17:35:00",
+        "prompt":  "approved, continue with functional design and code unit 3"
+    },
+    {
+        "timestamp":  "2026-05-24T17:40:00",
+        "prompt":  "skip functional design, straight to code generation, happy path only, no additional testing, proceed"
+    },
+    {
+        "timestamp":  "2026-05-24T18:00:00",
+        "prompt":  "Proceed with coding Unit 1, simplest happy path only, no negative test cases, no unit tests, just the bare minimum acceptance criteria"
+    },
+    {
+        "timestamp":  "2026-05-24T18:10:00",
+        "prompt":  "revert the changes made to generate unit 1 and only keep unit 3"
+    }
+]
