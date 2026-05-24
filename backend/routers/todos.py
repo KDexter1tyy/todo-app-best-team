@@ -37,17 +37,19 @@ async def list_todos(
     status: str | None = Query(default=None, description="Filter by status (pending, in-progress, done)"),
     priority: str | None = Query(default=None, description="Filter by priority (low, medium, high)"),
     sort_by: str | None = Query(default=None, description="Sort by field (due_date, created_at)"),
+    q: str | None = Query(default=None, description="Search by title (case-insensitive substring)"),
     current_user: User = Depends(get_current_user),
 ) -> list[Todo]:
-    """List todos for the authenticated user with optional filtering and sorting.
+    """List todos for the authenticated user with optional filtering, search, and sorting.
 
-    Accepts status, priority, and sort_by query parameters.
+    Accepts status, priority, sort_by, and q query parameters.
     Validates parameter values and calls todo service list_todos.
 
     Args:
         status: Optional status filter value.
         priority: Optional priority filter value.
         sort_by: Optional sort field.
+        q: Optional case-insensitive substring to match against title.
         current_user: The authenticated user (injected by dependency).
 
     Returns:
@@ -58,6 +60,7 @@ async def list_todos(
         status=status,
         priority=priority,
         sort_by=sort_by,
+        q=q,
     )
 
 

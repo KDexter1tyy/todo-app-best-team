@@ -72,23 +72,28 @@ class TodoService:
         status: str | None = None,
         priority: str | None = None,
         sort_by: str | None = None,
+        q: str | None = None,
     ) -> list[Todo]:
-        """List user's todos with optional filtering and sorting.
+        """List user's todos with optional filtering, search, and sorting.
 
-        Filters by user_id, applies optional status/priority filters,
-        and applies sort (due_date asc with nulls last, created_at desc).
+        Filters by user_id, applies optional title search (case-insensitive
+        substring), then status/priority filters, and applies sort
+        (due_date asc with nulls last, created_at desc).
 
         Args:
             user_id: The authenticated user's ID.
             status: Optional status filter value.
             priority: Optional priority filter value.
             sort_by: Optional sort field ("due_date" or "created_at").
+            q: Optional case-insensitive substring to match against title.
+               Trimmed before use. Empty after trim = no filter.
+               Length > 200 chars raises ValidationError.
 
         Returns:
             A list of Todo objects matching the criteria.
 
         Raises:
-            ValidationError: If filter/sort values are invalid.
+            ValidationError: If filter/sort/q values are invalid.
         """
         # Validate filter values
         if status is not None:
@@ -112,9 +117,24 @@ class TodoService:
                     [{"field": "sort_by", "message": f"Invalid sort_by value. Must be one of: {', '.join(valid_sorts)}"}]
                 )
 
+        # Normalize and validate search query
+        q_norm: str | None = None
+        if q is not None:
+            q_stripped = q.strip()
+            if len(q_stripped) > 200:
+                raise ValidationError(
+                    [{"field": "q", "message": "Search query must be 200 characters or fewer"}]
+                )
+            if q_stripped:
+                q_norm = q_stripped.lower()
+
         # Get all records and filter by user_id
         all_records = self.todo_store.read_all()
         user_todos = [r for r in all_records if r.get("user_id") == user_id]
+
+        # Apply title search (case-insensitive substring)
+        if q_norm is not None:
+            user_todos = [r for r in user_todos if q_norm in (r.get("title") or "").lower()]
 
         # Apply status filter
         if status is not None:
