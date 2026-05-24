@@ -48,3 +48,13 @@
 - **Current Stage**: All Inception stages complete
 - **Next Stage**: CONSTRUCTION PHASE (not started per user request)
 - **Status**: Inception package complete — ready for handoff to 4 parallel engineers
+
+## Additional Feature: Search by Title (Inception)
+- **Feature Folder**: `aidlc-docs/inception/search-by-title/`
+- **Artifacts**: `requirements.md`, `stories.md`, `unit-of-work.md`, `unit-of-work-dependency.md`, `component-methods.md`
+- **Decomposition**: 4 units of work
+  - Unit 1: Backend Search Endpoint (`q` query param on GET /api/todos)
+  - Unit 2: Frontend Types & API Client (`TodoListParams`, `todosApi.list`)
+  - Unit 3: SearchBar UI Component (debounced, accessible)
+  - Unit 4: Dashboard Integration & State (store, composable, page wiring, no-results empty state)
+- **Status**: Inception complete — ready for handoff to 4 parallel engineers
