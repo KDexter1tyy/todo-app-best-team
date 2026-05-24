@@ -12,6 +12,7 @@ interface TodosState {
     priority: string | undefined
   }
   sort_by: string | undefined
+  q: string | undefined
 }
 
 export const useTodosStore = defineStore('todos', {
@@ -25,6 +26,7 @@ export const useTodosStore = defineStore('todos', {
       priority: undefined,
     },
     sort_by: undefined,
+    q: undefined,
   }),
 
   getters: {
@@ -47,6 +49,7 @@ export const useTodosStore = defineStore('todos', {
           status: this.filters.status,
           priority: this.filters.priority,
           sort_by: this.sort_by,
+          q: this.q,
         }
         this.todos = await todosApi.list(params)
       } catch (err: any) {
@@ -113,6 +116,11 @@ export const useTodosStore = defineStore('todos', {
 
     setSortBy(value: string | undefined) {
       this.sort_by = value
+    },
+
+    setSearchQuery(value: string | undefined) {
+      // Normalize empty string to undefined so it isn't sent as ?q=
+      this.q = value && value.length > 0 ? value : undefined
     },
   },
 })

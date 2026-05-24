@@ -144,6 +144,10 @@ export function useTodos() {
     store.setSortBy(value)
   }
 
+  function setSearchQuery(value: string | undefined) {
+    store.setSearchQuery(value)
+  }
+
   return {
     // State
     todos,
@@ -159,6 +163,7 @@ export function useTodos() {
     deleteTodo,
     setFilter,
     setSortBy,
+    setSearchQuery,
     clearError,
   }
 }

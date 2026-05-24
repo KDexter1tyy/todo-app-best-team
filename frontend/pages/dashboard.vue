@@ -41,7 +41,11 @@
 
       <!-- Filter Bar -->
       <section aria-label="Filters and sorting" class="mb-6">
-        <div class="bg-white dark:bg-secondary-800 rounded-lg p-4 border border-secondary-200 dark:border-secondary-700">
+        <div class="bg-white dark:bg-secondary-800 rounded-lg p-4 border border-secondary-200 dark:border-secondary-700 space-y-3">
+          <SearchBar
+            :model-value="searchQuery"
+            @update:model-value="handleSearchChange"
+          />
           <FilterBar
             :status-filter="statusFilter"
             :priority-filter="priorityFilter"
@@ -58,13 +62,22 @@
         <!-- Loading state -->
         <LoadingSkeleton v-if="loading && todos.length === 0" variant="card" :count="5" aria-label="Loading todos" />
 
-        <!-- Empty state -->
+        <!-- Empty state — no search active, user has no todos -->
         <EmptyState
-          v-else-if="!loading && todos.length === 0"
+          v-else-if="!loading && todos.length === 0 && !searchQuery"
           title="No todos yet"
           description="Get started by creating your first todo. Stay organized and track your tasks effortlessly."
           action-text="Create Todo"
           @action="showCreateForm = true"
+        />
+
+        <!-- Empty state — search active, no matches -->
+        <EmptyState
+          v-else-if="!loading && todos.length === 0 && searchQuery"
+          :title="`No todos match &quot;${searchQuery}&quot;`"
+          description="Try a different search term, or clear the search to see all todos."
+          action-text="Clear search"
+          @action="handleClearSearch"
         />
 
         <!-- Todo items -->
@@ -328,6 +341,7 @@ const {
   deleteTodo,
   setFilter,
   setSortBy,
+  setSearchQuery,
 } = useTodos()
 
 // Local state
@@ -340,6 +354,7 @@ const loggingOut = ref(false)
 const statusFilter = ref<string | undefined>(undefined)
 const priorityFilter = ref<string | undefined>(undefined)
 const sortBy = ref<string | undefined>(undefined)
+const searchQuery = ref<string>('')
 
 const createForm = reactive<TodoCreate>({
   title: '',
@@ -370,6 +385,17 @@ async function handleSortBy(value: string | undefined) {
   sortBy.value = value
   setSortBy(value)
   await fetchTodos()
+}
+
+// Search handlers
+async function handleSearchChange(value: string) {
+  searchQuery.value = value
+  setSearchQuery(value && value.length > 0 ? value : undefined)
+  await fetchTodos()
+}
+
+async function handleClearSearch() {
+  await handleSearchChange('')
 }
 
 // Create todo
@@ -444,6 +470,9 @@ async function handleDeleteTodo() {
 // Logout
 async function handleLogout() {
   loggingOut.value = true
+  // Reset search/filter state so it doesn't persist into the next session
+  searchQuery.value = ''
+  setSearchQuery(undefined)
   const success = await logout()
   loggingOut.value = false
 
